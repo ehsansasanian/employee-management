@@ -35,7 +35,7 @@ public class EmployeeResource {
 
     @POST
     public Response create(@Valid EmployeeDTO dto) {
-        return Response.status(Response.Status.OK)
+        return Response.status(Response.Status.CREATED)
                 .entity(EmployeeDTO.fromEntity(service.create(dto.toEntity(), dto.departmentId())))
                 .build();
     }
