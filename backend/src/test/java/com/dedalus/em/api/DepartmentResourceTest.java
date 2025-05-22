@@ -1,21 +1,36 @@
 package com.dedalus.em.api;
 
 import com.dedalus.em.PostgresTestResource;
+import com.dedalus.em.repo.DepartmentRepository;
+import com.dedalus.em.repo.EmployeeRepository;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
-// TODO: Add more tests to cover edge cases
 @QuarkusTest
 @QuarkusTestResource(PostgresTestResource.class)
 class DepartmentResourceTest {
+
+    @Inject
+    EmployeeRepository employeeRepository;
+    @Inject
+    DepartmentRepository departmentRepository;
+
+    @AfterEach
+    @TestTransaction
+    void tearDown() {
+        employeeRepository.deleteAll();
+        departmentRepository.deleteAll();
+    }
 
     @Test
     @TestTransaction
@@ -33,8 +48,19 @@ class DepartmentResourceTest {
                 .then()
                 .statusCode(201)
                 .body("name", equalTo("Legal"))
+                .body("employeeCount", equalTo(0)) // Assert initial employee count
                 .extract()
                 .path("id");
+
+        // Verify employeeCount after creation by fetching the department
+        given()
+                .when()
+                .get("/api/departments/{id}", deptId)
+                .then()
+                .statusCode(200)
+                .body("name", equalTo("Legal"))
+                .body("employeeCount", equalTo(0));
+
 
         JsonObject emp1Dto = Json.createObjectBuilder()
                 .add("firstName", "Alice")
@@ -76,6 +102,15 @@ class DepartmentResourceTest {
                 .extract()
                 .path("id");
 
+        // Verify employeeCount after adding employees by fetching the department
+        given()
+                .when()
+                .get("/api/departments/{id}", deptId)
+                .then()
+                .statusCode(200)
+                .body("name", equalTo("Legal")) // Name should still be "Legal" before update
+                .body("employeeCount", equalTo(2));
+
 
         // ---------- UPDATE ----------
         JsonObject patch = Json.createObjectBuilder()
@@ -90,7 +125,8 @@ class DepartmentResourceTest {
                 .put("/api/departments/{id}", deptId)
                 .then()
                 .statusCode(200)
-                .body("name", equalTo("UPDATED"));
+                .body("name", equalTo("UPDATED"))
+                .body("employeeCount", equalTo(2)); // Assert employee count after update
 
         // ---------- DELETE ----------
         given()
@@ -124,4 +160,6 @@ class DepartmentResourceTest {
                 .body("id", equalTo(emp2Id))
                 .body("department", nullValue());
     }
+
+    // TODO: Add more tests to cover edge cases
 }

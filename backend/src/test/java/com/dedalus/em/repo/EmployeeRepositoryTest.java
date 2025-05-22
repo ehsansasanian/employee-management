@@ -26,6 +26,9 @@ class EmployeeRepositoryTest {
     Department testDepartment;
 
     void setup() {
+        employeeRepository.deleteAll();
+        departmentRepository.deleteAll();
+
         testDepartment = new Department();
         testDepartment.setName("DEPARTMENT_TEST");
         departmentRepository.persist(testDepartment);
