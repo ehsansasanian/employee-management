@@ -1,0 +1,45 @@
+<div class="department-detail-container" *ngIf="department">
+  <button (click)="goBackToDashboard()" class="back-button">&larr; Back to Dashboard</button>
+  <h2>{{ department.name }} <span class="employee-count">({{ department.employeeCount }} employees)</span></h2>
+
+  <div class="actions-toolbar">
+    <input type="text" class="search-employees" placeholder="Search employees in this department..." 
+           [(ngModel)]="searchTerm" 
+           (ngModelChange)="onSearchTermChange()" />
+    <button *ngIf="!showAddEmployeeForm" (click)="toggleAddEmployeeForm()" class="add-button">Add New Employee</button>
+  </div>
+
+  <div *ngIf="showAddEmployeeForm" class="add-employee-form">
+    <h3>Add New Employee to {{ department.name }}</h3>
+    <input type="text" [(ngModel)]="newEmployee.fullName" placeholder="Full Name" required />
+    <input type="email" [(ngModel)]="newEmployee.email" placeholder="Email" required />
+    <input type="tel" [(ngModel)]="newEmployee.phoneNumber" placeholder="Phone Number" />
+    <input type="text" [(ngModel)]="newEmployee.address" placeholder="Address" />
+    <div class="form-actions">
+      <button (click)="onAddEmployee()" class="save-button">Save Employee</button>
+      <button (click)="toggleAddEmployeeForm()" class="cancel-button">Cancel</button>
+    </div>
+  </div>
+
+  <div class="employee-list">
+    <ul *ngIf="(employees$ | async) as employees; else loadingOrNoEmployees">
+      <li *ngIf="employees.length === 0 && !searchTerm">No employees in this department.</li>
+      <li *ngIf="employees.length === 0 && searchTerm">No employees found matching "{{ searchTerm }}".</li>
+      <li *ngFor="let employee of employees" class="employee-item">
+        <div>
+          <span class="employee-name">{{ employee.fullName }}</span>
+          <span class="employee-info">{{ employee.email }} | {{ employee.phoneNumber }}</span>
+          <span class="employee-info">{{ employee.address }}</span>
+        </div>
+        <button (click)="onDeleteEmployee(employee.id)" class="delete-button">Delete</button>
+      </li>
+    </ul>
+    <ng-template #loadingOrNoEmployees>
+      <p>Loading employees...</p>
+    </ng-template>
+  </div>
+
+</div>
+<div *ngIf="!department">
+  <p>Loading department details...</p>
+</div>

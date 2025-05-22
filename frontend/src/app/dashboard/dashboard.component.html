@@ -1,9 +1,52 @@
-  <div class="departments">
-    <div class="department-card">
-      <span class="count">5</span>
-      <p>Department 1</p>
-      <a class="delete-link" href="#">Delete</a>
+<div class="dashboard-container">
+  <h2>Departments</h2>
+
+  <!-- Search Bar -->
+  <div class="search-bar">
+    <input type="text" placeholder="Search employees by name..." 
+           [(ngModel)]="searchTerm" 
+           (ngModelChange)="onSearchTermChange()" />
+  </div>
+
+  <!-- Search Results -->
+  <div *ngIf="showSearchResults" class="search-results">
+    <h3>Search Results:</h3>
+    <ul *ngIf="(searchResults$ | async) as results; else noResults">
+      <li *ngIf="results.length === 0">No employees found.</li>
+      <li *ngFor="let employee of results" (click)="navigateToDepartment(employee.departmentId)">
+        {{ employee.fullName }} 
+        <!-- Assuming departments$ emits the full list needed for getDepartmentNameForEmployee -->
+        <!-- This is not ideal for performance if departments list is huge or changes often -->
+        <!-- <span class="employee-dept"> ({{ getDepartmentNameForEmployee(employee.departmentId, (departments$ | async)) }})</span> -->
+         <span class="employee-dept" *ngIf="employee.departmentId">
+            ({{ (departments$ | async)?.find(d => d.id === employee.departmentId)?.name || 'Unassigned' }})
+        </span>
+        <span class="employee-dept" *ngIf="!employee.departmentId">
+            (Unassigned)
+        </span>
+      </li>
+    </ul>
+    <ng-template #noResults>Loading results...</ng-template>
+  </div>
+
+  <div class="departments-list">
+    <div *ngFor="let dept of (departments$ | async)" class="department-card" (click)="navigateToDepartment(dept.id)">
+      <span class="count">{{ dept.employeeCount }}</span>
+      <p>{{ dept.name }}</p>
+      <button *ngIf="dept.id !== (UNASSIGNED_DEPARTMENT_ID as any) && dept.name !== UNASSIGNED_DEPARTMENT_NAME" 
+              (click)="onDeleteDepartment(dept.id); $event.stopPropagation();" 
+              class="delete-button">
+        Delete
+      </button>
     </div>
   </div>
 
-  <button class="add-department">Add Department</button>
+  <div class="add-department-section">
+    <button *ngIf="!showAddDepartmentForm" (click)="toggleAddDepartmentForm()" class="add-button">Add New Department</button>
+    <div *ngIf="showAddDepartmentForm" class="add-department-form">
+      <input type="text" [(ngModel)]="newDepartmentName" placeholder="Department Name" />
+      <button (click)="onAddDepartment()" class="save-button">Save</button>
+      <button (click)="toggleAddDepartmentForm()" class="cancel-button">Cancel</button>
+    </div>
+  </div>
+</div>

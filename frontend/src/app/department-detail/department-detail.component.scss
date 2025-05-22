@@ -1,0 +1,148 @@
+.department-detail-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+
+  .back-button {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+
+    &:hover {
+      background-color: #5a6268;
+    }
+  }
+
+  h2 {
+    color: #333;
+    margin-bottom: 10px;
+    .employee-count {
+      font-size: 0.8em;
+      color: #555;
+    }
+  }
+  
+  .actions-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .search-employees {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 300px;
+    }
+  }
+
+  .add-button, .save-button, .cancel-button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    margin-left: 10px; // For buttons next to each other in form-actions
+  }
+
+  .add-button {
+    background-color: #28a745;
+    &:hover { background-color: #218838; }
+  }
+  
+  .save-button {
+    background-color: #007bff;
+    &:hover { background-color: #0056b3; }
+  }
+
+  .cancel-button {
+    background-color: #6c757d;
+    &:hover { background-color: #545b62; }
+  }
+  
+  .add-employee-form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid #eee;
+    margin-bottom: 20px;
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    input[type="text"], input[type="email"], input[type="tel"] {
+      width: calc(100% - 22px); // Account for padding and border
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      display: block;
+    }
+    
+    .form-actions {
+      margin-top: 10px;
+      text-align: right;
+       button {
+        margin-left: 10px;
+       }
+       button:first-child {
+        margin-left: 0;
+       }
+    }
+  }
+
+  .employee-list {
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .employee-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      background-color: #fff;
+
+      .employee-name {
+        font-weight: bold;
+        color: #007bff;
+        font-size: 1.1em;
+      }
+
+      .employee-info {
+        display: block;
+        font-size: 0.9em;
+        color: #555;
+        margin-top: 3px;
+      }
+
+      .delete-button {
+        padding: 8px 12px;
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 0.9em;
+
+        &:hover {
+          background-color: #cc0000;
+        }
+      }
+    }
+     li:empty { // Hide li if it's empty (e.g. from *ngIf conditions)
+        display: none;
+    }
+  }
+}
