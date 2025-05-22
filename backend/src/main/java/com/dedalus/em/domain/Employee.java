@@ -36,6 +36,6 @@ public class Employee {
     @Column(nullable = false)
     private String email;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Department department;
 }

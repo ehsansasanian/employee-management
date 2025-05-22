@@ -56,7 +56,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     public void delete(Long id) {
         logger.info("Deleting department with id: {}", id);
         var dept = find(id);
-        if (!dept.getEmployees().isEmpty()) throw new IllegalStateException("Department has employees");
+        dept.getEmployees().forEach(e -> e.setDepartment(null));
         repo.delete(dept);
     }
 }

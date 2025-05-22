@@ -35,7 +35,7 @@ public record EmployeeDTO(
                 e.getAddress(),
                 e.getPhone(),
                 e.getEmail(),
-                e.getDepartment().getId());
+                e.getDepartment() != null ? e.getDepartment().getId() : null);
     }
 
     public Employee toEntity() {
