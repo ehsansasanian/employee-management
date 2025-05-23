@@ -1,9 +1,9 @@
   <div class="departments">
-    <div class="department-card">
-      <span class="count">5</span>
-      <p>Department 1</p>
-      <a class="delete-link" href="#">Delete</a>
+    <div class="department-card" *ngFor="let department of departments$ | async">
+      <span class="count">{{ department.employeeCount }}</span>
+      <p>{{ department.name }}</p>
+      <a class="delete-link" href="#" (click)="deleteDepartment(department.id); $event.preventDefault();">Delete</a>
     </div>
   </div>
 
-  <button class="add-department">Add Department</button>
+  <button class="add-department" (click)="addDepartment()">Add Department</button>
