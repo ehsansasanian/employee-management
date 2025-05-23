@@ -1,8 +1,8 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
-import {Department} from '../models/department.model';
+import {Injectable} from '@angular/core'
+import {BehaviorSubject} from 'rxjs'
+import {Department} from '../models/department.model'
 
-export type NewDepartment = Omit<Department, 'id'>;
+export type NewDepartment = Omit<Department, 'id'>
 
 @Injectable({ providedIn: 'root' })
 export class DepartmentService {

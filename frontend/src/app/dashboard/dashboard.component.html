@@ -6,4 +6,15 @@
     </div>
   </div>
 
-  <button class="add-department" (click)="addDepartment()">Add Department</button>
+  <button class="add-department" (click)="openAddModal()">Add Department</button>
+
+  <div class="modal-overlay" *ngIf="showAddModal">
+    <div class="modal-dialog" (keydown)="handleAddModalKey($event)">
+      <h3>Add Department</h3>
+      <input #addDeptInput type="text" [(ngModel)]="newDepartmentName" placeholder="Department name" (keydown.enter)="$event.preventDefault()" />
+      <div style="margin-top: 16px;">
+        <button (click)="addDepartment()" [disabled]="!newDepartmentName.trim()">Add</button>
+        <button (click)="closeAddModal()" style="margin-left: 8px;">Cancel</button>
+      </div>
+    </div>
+  </div>
