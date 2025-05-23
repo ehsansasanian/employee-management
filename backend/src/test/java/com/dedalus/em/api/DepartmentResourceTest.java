@@ -63,8 +63,8 @@ class DepartmentResourceTest {
 
 
         JsonObject emp1Dto = Json.createObjectBuilder()
-                .add("firstName", "Alice")
-                .add("lastName", "Smith")
+                .add("firstname", "Alice")
+                .add("lastname", "Smith")
                 .add("email", "alice.smith@example.com")
                 .add("phone", "555-555-5555")
                 .add("departmentId", deptId)
@@ -77,14 +77,14 @@ class DepartmentResourceTest {
                 .post("/api/employees")
                 .then()
                 .statusCode(201)
-                .body("firstName", equalTo("Alice"))
+                .body("firstname", equalTo("Alice"))
                 .body("departmentId", equalTo(deptId))
                 .extract()
                 .path("id");
 
         JsonObject emp2Dto = Json.createObjectBuilder()
-                .add("firstName", "Bob")
-                .add("lastName", "Johnson")
+                .add("firstname", "Bob")
+                .add("lastname", "Johnson")
                 .add("email", "bob.johnson@example.com")
                 .add("phone", "555-555-5555")
                 .add("departmentId", deptId)
@@ -97,7 +97,7 @@ class DepartmentResourceTest {
                 .post("/api/employees")
                 .then()
                 .statusCode(201)
-                .body("firstName", equalTo("Bob"))
+                .body("firstname", equalTo("Bob"))
                 .body("departmentId", equalTo(deptId))
                 .extract()
                 .path("id");

@@ -10,10 +10,10 @@ public record EmployeeDTO(
         Long id,
         @NotBlank(message = "Name is required")
         @Size(max = 50)
-        String firstName,
+        String firstname,
         @NotBlank(message = "Lastname is required")
         @Size(max = 100)
-        String lastName,
+        String lastname,
         String address,
         String phone,
         @NotBlank(message = "E-mail is required")
@@ -41,8 +41,8 @@ public record EmployeeDTO(
     public Employee toEntity() {
         var e = new Employee();
         e.setId(id);
-        e.setFirstname(firstName);
-        e.setLastname(lastName);
+        e.setFirstname(firstname);
+        e.setLastname(lastname);
         e.setAddress(address);
         e.setPhone(phone);
         e.setEmail(email);
