@@ -13,6 +13,7 @@ export class DashboardComponent {
   departments$: Observable<Department[]>;
   showAddModal = false;
   newDepartmentName: string = '';
+  activeTab: 'departments' | 'employees' = 'departments';
   @ViewChild('addDeptInput') addDeptInputRef?: ElementRef<HTMLInputElement>;
 
   constructor(private departmentService: DepartmentService) {

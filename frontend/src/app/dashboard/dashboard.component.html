@@ -1,3 +1,9 @@
+<div class="tab-bar">
+  <button [class.active]="activeTab === 'departments'" (click)="activeTab = 'departments'">Departments</button>
+  <button [class.active]="activeTab === 'employees'" (click)="activeTab = 'employees'">Employees</button>
+</div>
+
+<div *ngIf="activeTab === 'departments'">
   <div class="departments">
     <div class="department-card" *ngFor="let department of departments$ | async">
       <span class="count">{{ department.employeeCount }}</span>
@@ -11,10 +17,18 @@
   <div class="modal-overlay" *ngIf="showAddModal">
     <div class="modal-dialog" (keydown)="handleAddModalKey($event)">
       <h3>Add Department</h3>
-      <input #addDeptInput type="text" [(ngModel)]="newDepartmentName" placeholder="Department name" (keydown.enter)="$event.preventDefault()" />
+      <input #addDeptInput type="text" [(ngModel)]="newDepartmentName" placeholder="Department name"
+             (keydown.enter)="$event.preventDefault()"/>
       <div style="margin-top: 16px;">
         <button (click)="addDepartment()" [disabled]="!newDepartmentName.trim()">Add</button>
         <button (click)="closeAddModal()" style="margin-left: 8px;">Cancel</button>
       </div>
     </div>
   </div>
+</div>
+
+<div *ngIf="activeTab === 'employees'">
+  <div style="margin-top: 48px; text-align: center; color: #888; font-size: 20px;">
+    Employee management coming soon... :)
+  </div>
+</div>

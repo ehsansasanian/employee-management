@@ -95,3 +95,25 @@
   border: none;
   cursor: pointer;
 }
+
+.tab-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 32px;
+  margin-top: 8px;
+}
+.tab-bar button {
+  padding: 10px 32px;
+  font-size: 18px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  cursor: pointer;
+  color: #333;
+  font-weight: 600;
+  transition: border-color 0.2s, color 0.2s;
+}
+.tab-bar button.active {
+  border-bottom: 3px solid #007bff;
+  color: #007bff;
+}
