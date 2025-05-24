@@ -1,8 +1,8 @@
-<p>Employee list loaded!</p>
 <div class="employee-list">
   <div class="employee-card" *ngFor="let employee of employees$ | async">
     <div class="employee-name">{{ employee.name }}</div>
-    <div class="employee-position">{{ employee.position }}</div>
-    <div class="employee-department">Department ID: {{ employee.departmentId }}</div>
+    <div class="employee-department">
+      {{ employee.department?.name || 'Unassigned' }}
+    </div>
   </div>
 </div>

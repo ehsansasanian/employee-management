@@ -1,6 +1,7 @@
+import { Department } from './department.model';
+
 export interface Employee {
   id: number
   name: string
-  departmentId: number
-  position: string
+  department: Department | null
 }
