@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, Observable, of} from 'rxjs';
 import {Employee} from '../models/employee.model';
 import {Department} from '../models/department.model';
 import {map} from 'rxjs/operators';
@@ -29,6 +29,16 @@ export class EmployeeService {
   getEmployeesByDepartment(departmentId: number): Observable<Employee[]> {
     return this.employees$.pipe(
       map(employees => employees.filter(e => e.department?.id === departmentId))
+    );
+  }
+
+  getUnassignedEmployeeCount(): Observable<number> {
+    return of(1);
+  }
+
+  getUnassignedEmployees(): Observable<Employee[]> {
+    return this.employees$.pipe(
+      map(employees => employees.filter(e => !e.department))
     );
   }
 }

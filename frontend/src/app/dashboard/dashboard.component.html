@@ -10,6 +10,10 @@
       <p>{{ department.name }}</p>
       <a class="delete-link" href="#" (click)="deleteDepartment(department.id); $event.preventDefault(); $event.stopPropagation();">Delete</a>
     </div>
+    <div class="department-card" *ngIf="unassignedCount > 0" (click)="openUnassignedModal()" style="cursor:pointer; background: #f8f9fa; border-style: dashed;">
+      <span class="count">{{ unassignedCount }}</span>
+      <p>Unassigned</p>
+    </div>
   </div>
 
   <button class="add-department" (click)="openAddModal()">Add Department</button>
@@ -28,8 +32,9 @@
 
   <div class="modal-overlay" *ngIf="showEmployeeModal">
     <div class="modal-dialog" id="employee-modal" tabindex="0" (keydown)="handleEmployeeModalKey($event)">
-      <h3>{{ selectedDepartment?.name }} Employees</h3>
-      <app-employee [departmentId]="selectedDepartment?.id"></app-employee>
+      <h3>{{ selectedDepartment ? (selectedDepartment.name + ' Employees') : 'Unassigned Employees' }}</h3>
+      <app-employee [departmentId]="selectedDepartment.id" *ngIf="selectedDepartment"></app-employee>
+      <app-employee *ngIf="!selectedDepartment" [departmentId]="null"></app-employee>
       <div style="margin-top: 16px; text-align: right;">
         <button (click)="closeEmployeeModal()">Close</button>
       </div>

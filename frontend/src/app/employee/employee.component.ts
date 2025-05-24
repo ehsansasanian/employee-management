@@ -13,9 +13,12 @@ export class EmployeeComponent {
   employees$: Observable<Employee[]>;
 
   @Input()
-  set departmentId(value: number | undefined) {
-    this.employees$ = value == null ? this.employeeService.employees$ :
-      this.employeeService.getEmployeesByDepartment(value);
+  set departmentId(value: number | null | undefined) {
+    if (value == null) {
+      this.employees$ = this.employeeService.getUnassignedEmployees();
+    } else {
+      this.employees$ = this.employeeService.getEmployeesByDepartment(value);
+    }
   }
 
   constructor(private employeeService: EmployeeService) {
