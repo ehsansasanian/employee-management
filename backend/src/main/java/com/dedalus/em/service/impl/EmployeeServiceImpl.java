@@ -34,6 +34,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     public List<Employee> search(String q, int page, int size) {
+        // TODO: Fix pagination to return paginated results
         logger.info("Searching employees with query: '{}', page={}, size={}", q, page, size);
         return repo.searchByName(q);
     }

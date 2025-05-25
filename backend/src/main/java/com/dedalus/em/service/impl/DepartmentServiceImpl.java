@@ -25,6 +25,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     public List<Department> findAll(int page, int size) {
+        // TODO: Fix pagination to return paginated results
         logger.info("Fetching all departments with pagination: page={}, size={}", page, size);
         return repo.findAll().page(page, size).list();
     }
@@ -67,5 +68,12 @@ public class DepartmentServiceImpl implements DepartmentService {
         return repo.findByIdOptional(id)
                 .map(Department::getEmployees)
                 .orElseThrow(NotFoundException::new);
+    }
+
+    @Override
+    public List<Department> search(String q, int page, int size) {
+        // TODO: Fix pagination to return paginated results
+        logger.info("Searching departments with query: '{}', page: {}, size: {}", q, page, size);
+        return repo.searchByName(q);
     }
 }

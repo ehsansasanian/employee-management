@@ -18,10 +18,14 @@ public class DepartmentResource {
     DepartmentService service;
 
     @GET
-    public Response list(@QueryParam("page") @DefaultValue("0") int page,
+    public Response list(@QueryParam("q") String q,
+                         @QueryParam("page") @DefaultValue("0") int page,
                          @QueryParam("size") @DefaultValue("10") int size) {
+        var result = q == null || q.isBlank()
+                ? service.findAll(page, size)
+                : service.search(q, page, size);
         return Response.status(Response.Status.OK)
-                .entity(service.findAll(page, size).stream().map(DepartmentDTO::fromEntity).toList())
+                .entity(result.stream().map(DepartmentDTO::fromEntity).toList())
                 .build();
     }
 

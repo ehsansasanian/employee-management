@@ -19,4 +19,6 @@ public interface DepartmentService {
     void delete(Long id);
 
     List<Employee> getEmployees(Long id);
+
+    List<Department> search(String q, int page, int size);
 }
