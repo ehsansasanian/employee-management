@@ -1,7 +1,8 @@
 import {Component, ElementRef, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Observable, Subject, takeUntil, tap} from 'rxjs';
-import {Employee} from '../models/employee.model';
+import {Employee, EmployeeRequestDTO} from '../models/employee.model';
 import {EmployeeService} from '../services/employee.service';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-employee',
@@ -15,10 +16,25 @@ export class EmployeeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>()
 
   showDetailsModal = false;
+  showAddModal = false;
   selectedEmployee: Employee | null = null;
   @ViewChild('modalDialog') modalDialog?: ElementRef<HTMLDivElement>;
+  @ViewChild('addModalDialog') addModalDialog?: ElementRef<HTMLDivElement>;
 
-  constructor(private employeeService: EmployeeService) {
+  employeeForm: FormGroup;
+
+  constructor(
+    private employeeService: EmployeeService,
+    private fb: FormBuilder
+  ) {
+    this.employeeForm = this.fb.group({
+      firstname: ['', [Validators.required, Validators.minLength(2)]],
+      lastname: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern('^[+]?[0-9\\s-]{8,}$')]],
+      address: ['', [Validators.required, Validators.minLength(5)]],
+      departmentId: [null]
+    });
   }
 
   @Input()
@@ -75,6 +91,15 @@ export class EmployeeComponent implements OnInit, OnDestroy {
     this.employeeService.deleteEmployee(id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
+        next: () => {
+          if (this._departmentId !== undefined) {
+            // If we're in a department view, reload the page to refresh all data
+            window.location.reload();
+          } else {
+            // If we're in the main employees view, just refresh the list
+            this.loadEmployees();
+          }
+        },
         error: (error) => console.error('Error deleting employee:', error)
       });
   }
@@ -97,5 +122,75 @@ export class EmployeeComponent implements OnInit, OnDestroy {
     if (event.key === 'Escape') {
       this.closeDetailsModal();
     }
+  }
+
+  openAddModal(): void {
+    this.showAddModal = true;
+    this.employeeForm.reset();
+
+    if (this._departmentId !== undefined && this._departmentId !== null) {
+      this.employeeForm.patchValue({ departmentId: this._departmentId });
+    }
+    setTimeout(() => {
+      this.addModalDialog?.nativeElement.focus();
+    });
+  }
+
+  closeAddModal(): void {
+    this.showAddModal = false;
+    this.employeeForm.reset();
+  }
+
+  handleAddModalKey(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      this.closeAddModal();
+    }
+  }
+
+  addEmployee(): void {
+    if (this.employeeForm.valid) {
+      const formValue = this.employeeForm.value;
+      const request: EmployeeRequestDTO = {
+        firstname: formValue.firstname,
+        lastname: formValue.lastname,
+        email: formValue.email,
+        phone: formValue.phone,
+        address: formValue.address,
+        departmentId: formValue.departmentId || undefined
+      };
+
+      this.employeeService.addEmployee(request)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.closeAddModal();
+            if (this._departmentId !== undefined) {
+              window.location.reload();
+            } else {
+              this.loadEmployees();
+            }
+          },
+          error: (error) => console.error('Error adding employee:', error)
+        });
+    }
+  }
+
+  getErrorMessage(controlName: string): string {
+    const control = this.employeeForm.get(controlName);
+    if (!control) return '';
+
+    if (control.hasError('required')) {
+      return 'This field is required';
+    }
+    if (control.hasError('email')) {
+      return 'Please enter a valid email address';
+    }
+    if (control.hasError('minlength')) {
+      return `Minimum length is ${control.errors?.['minlength'].requiredLength} characters`;
+    }
+    if (control.hasError('pattern')) {
+      return 'Please enter a valid phone number';
+    }
+    return '';
   }
 }
