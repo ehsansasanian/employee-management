@@ -15,8 +15,8 @@ export class EmployeeService {
   ) {
   }
 
-  getEmployeesPaginated(page: number = 0, size: number = 10, forceRefresh: boolean = false): Observable<Employee[]> {
-    if (!forceRefresh && page === 0 && this.paginatedEmployeesSubject.value) {
+  getEmployeesPaginated(page: number = 0, size: number = 10): Observable<Employee[]> {
+    if (page === 0 && this.paginatedEmployeesSubject.value) {
       // reading from cached value if available
       return this.paginatedEmployees$ as Observable<Employee[]>;
     }
@@ -44,6 +44,10 @@ export class EmployeeService {
   getUnassignedEmployeeCount(): Observable<number> {
     return this.http.get<number>(this.apiConfig.getEmployeesUrl() + '/unassigned/count')
       .pipe(catchError(this.handleError));
+  }
+
+  invalidateCache(): void {
+    this.paginatedEmployeesSubject.next(null);
   }
 
   private handleError(error: HttpErrorResponse) {

@@ -3,6 +3,7 @@ import {BehaviorSubject, catchError, Observable, tap, throwError} from 'rxjs'
 import {Department} from '../models/department.model'
 import {HttpClient, HttpErrorResponse} from '@angular/common/http'
 import {ApiConfigService} from './api-config.service'
+import {EmployeeService} from './employee.service'
 
 export type NewDepartment = Omit<Department, 'id'>
 
@@ -13,7 +14,8 @@ export class DepartmentService {
 
   constructor(
     private http: HttpClient,
-    private apiConfig: ApiConfigService
+    private apiConfig: ApiConfigService,
+    private employeeService: EmployeeService
   ) {
     this.loadDepartments()
   }
@@ -45,6 +47,8 @@ export class DepartmentService {
           // using optimistic update – alternatively could re-fetch all departments
           const current = this.departmentsSubject.value
           this.departmentsSubject.next(current.filter(dep => dep.id !== id))
+          // Force refresh employee data since employees will be reassigned
+          this.employeeService.invalidateCache()
         }),
         catchError(this.handleError)
       )
