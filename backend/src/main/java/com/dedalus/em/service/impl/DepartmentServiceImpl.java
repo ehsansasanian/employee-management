@@ -1,6 +1,7 @@
 package com.dedalus.em.service.impl;
 
 import com.dedalus.em.domain.Department;
+import com.dedalus.em.domain.Employee;
 import com.dedalus.em.repo.DepartmentRepository;
 import com.dedalus.em.service.DepartmentService;
 import com.dedalus.em.service.exception.NotFoundException;
@@ -58,5 +59,13 @@ public class DepartmentServiceImpl implements DepartmentService {
         var dept = find(id);
         dept.getEmployees().forEach(e -> e.setDepartment(null));
         repo.delete(dept);
+    }
+
+    @Override
+    public List<Employee> getEmployees(Long id) {
+        logger.info("Fetching employees for department with id: {}", id);
+        return repo.findByIdOptional(id)
+                .map(Department::getEmployees)
+                .orElseThrow(NotFoundException::new);
     }
 }

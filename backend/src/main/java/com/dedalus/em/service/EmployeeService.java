@@ -17,4 +17,8 @@ public interface EmployeeService {
     Employee update(Long id, Employee data, Long departmentId);
 
     void delete(Long id);
+
+    Integer countUnassigned();
+
+    List<Employee> getUnassignedEmployees();
 }

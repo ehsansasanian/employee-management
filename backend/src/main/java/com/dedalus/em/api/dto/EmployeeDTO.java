@@ -22,22 +22,6 @@ public record EmployeeDTO(
         @Positive(message = "departmentId is required")
         Long departmentId) {
 
-    /*
-     * Ideally, we would use a mapper library like MapStruct to handle the conversion between DTO and entity.
-     * For simplicity, we are doing it manually here.
-     * */
-
-    public static EmployeeDTO fromEntity(Employee e) {
-        return new EmployeeDTO(
-                e.getId(),
-                e.getFirstname(),
-                e.getLastname(),
-                e.getAddress(),
-                e.getPhone(),
-                e.getEmail(),
-                e.getDepartment() != null ? e.getDepartment().getId() : null);
-    }
-
     public Employee toEntity() {
         var e = new Employee();
         e.setId(id);

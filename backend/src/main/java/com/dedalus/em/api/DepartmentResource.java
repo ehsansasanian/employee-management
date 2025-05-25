@@ -1,6 +1,7 @@
 package com.dedalus.em.api;
 
 import com.dedalus.em.api.dto.DepartmentDTO;
+import com.dedalus.em.api.dto.EmployeeResponseDTO;
 import com.dedalus.em.service.DepartmentService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -53,5 +54,13 @@ public class DepartmentResource {
     public Response delete(@PathParam("id") Long id) {
         service.delete(id);
         return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    @GET
+    @Path("{id}/employees")
+    public Response getEmployees(@PathParam("id") Long id) {
+        return Response.status(Response.Status.OK)
+                .entity(service.getEmployees(id).stream().map(EmployeeResponseDTO::fromEntity).toList())
+                .build();
     }
 }

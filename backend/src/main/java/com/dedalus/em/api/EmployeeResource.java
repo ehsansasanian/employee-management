@@ -1,6 +1,8 @@
 package com.dedalus.em.api;
 
 import com.dedalus.em.api.dto.EmployeeDTO;
+import com.dedalus.em.api.dto.EmployeeResponseDTO;
+import com.dedalus.em.domain.Employee;
 import com.dedalus.em.service.EmployeeService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -22,21 +24,16 @@ public class EmployeeResource {
     public Response list(@QueryParam("q") String q,
                          @QueryParam("page") @DefaultValue("0") int page,
                          @QueryParam("size") @DefaultValue("20") int size) {
-        List<EmployeeDTO> result;
-        if (q == null || q.isBlank()) {
-            result = service.findAll(page, size).stream().map(EmployeeDTO::fromEntity).toList();
-        } else {
-            result = service.search(q, page, size).stream().map(EmployeeDTO::fromEntity).toList();
-        }
+        List<Employee> all = q == null || q.isBlank() ? service.findAll(page, size) : service.search(q, page, size);
         return Response.status(Response.Status.OK)
-                .entity(result)
+                .entity(all.stream().map(EmployeeResponseDTO::fromEntity).toList())
                 .build();
     }
 
     @POST
-    public Response create(@Valid EmployeeDTO dto) {
+    public Response create(@Valid EmployeeDTO request) {
         return Response.status(Response.Status.CREATED)
-                .entity(EmployeeDTO.fromEntity(service.create(dto.toEntity(), dto.departmentId())))
+                .entity(EmployeeResponseDTO.fromEntity(service.create(request.toEntity(), request.departmentId())))
                 .build();
     }
 
@@ -61,5 +58,19 @@ public class EmployeeResource {
     public Response delete(@PathParam("id") Long id) {
         service.delete(id);
         return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    @GET
+    @Path("unassigned/count")
+    public Response countUnassigned() {
+        return Response.ok().entity(service.countUnassigned()).build();
+    }
+
+    @GET
+    @Path("unassigned")
+    public Response unassigned() {
+        return Response.ok()
+                .entity(service.getUnassignedEmployees().stream().map(EmployeeResponseDTO::fromEntity).toList())
+                .build();
     }
 }

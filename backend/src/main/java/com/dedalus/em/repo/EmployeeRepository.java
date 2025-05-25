@@ -13,4 +13,12 @@ public class EmployeeRepository implements PanacheRepositoryBase<Employee, Long>
         var like = "%" + q.toLowerCase() + "%";
         return list("LOWER(firstname) LIKE ?1 OR LOWER(lastname) LIKE ?1", like);
     }
+
+    public Integer countUnassigned() {
+        return (int) count("department IS NULL");
+    }
+
+    public List<Employee> fetchUnassignedEmployees() {
+        return list("department IS NULL");
+    }
 }

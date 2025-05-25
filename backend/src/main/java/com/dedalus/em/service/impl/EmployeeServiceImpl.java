@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class EmployeeServiceImpl implements EmployeeService {
@@ -27,6 +28,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     public List<Employee> findAll(int page, int size) {
+        // TODO: Fix pagination to return paginated results
         logger.info("Fetching all employees with pagination: page={}, size={}", page, size);
         return repo.findAll().page(page, size).list();
     }
@@ -44,7 +46,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     public Employee create(Employee e, Long deptId) {
         logger.info("Creating new employee: {}", e);
-        e.setDepartment(deptRepo.findByIdOptional(deptId).orElseThrow(NotFoundException::new));
+        Optional.ofNullable(deptId)
+                .flatMap(deptRepo::findByIdOptional)
+                .ifPresent(e::setDepartment);
         repo.persist(e);
         return e;
     }
@@ -66,5 +70,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void delete(Long id) {
         logger.info("Deleting employee with id: {}", id);
         repo.delete(find(id));
+    }
+
+    @Override
+    public Integer countUnassigned() {
+        logger.info("Counting unassigned employees");
+        return repo.countUnassigned();
+    }
+
+    @Override
+    public List<Employee> getUnassignedEmployees() {
+        return repo.fetchUnassignedEmployees();
     }
 }

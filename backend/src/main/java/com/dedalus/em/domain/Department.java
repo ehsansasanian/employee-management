@@ -10,8 +10,8 @@ import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.OffsetDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "departments", uniqueConstraints = @UniqueConstraint(name = "uk_department_name", columnNames = "name"))
@@ -34,7 +34,7 @@ public class Department {
     private OffsetDateTime updatedAt;
 
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
-    private Set<Employee> employees = new HashSet<>();
+    private List<Employee> employees = new ArrayList<>();
 
     @Formula("(select count(e.id) from employees e where e.department_id = id)")
     private int employeeCount;
