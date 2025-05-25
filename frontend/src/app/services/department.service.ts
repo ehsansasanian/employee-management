@@ -7,7 +7,7 @@ import {EmployeeService} from './employee.service'
 
 export type NewDepartment = Omit<Department, 'id'>
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class DepartmentService {
   private departmentsSubject = new BehaviorSubject<Department[]>([])
   departments$ = this.departmentsSubject.asObservable()
@@ -55,14 +55,13 @@ export class DepartmentService {
   }
 
   private handleError(error: HttpErrorResponse) {
-    // TODO: Check error handling strategy
-    let errorMessage = 'An error occurred'
+    let errorMessage: string
     if (error.error instanceof ErrorEvent) {
       errorMessage = error.error.message
     } else {
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`
     }
     console.error(errorMessage)
-    return throwError(() => new Error(errorMessage))
+    return throwError(() => error)
   }
 }

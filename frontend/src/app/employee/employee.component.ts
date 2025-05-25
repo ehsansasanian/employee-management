@@ -3,6 +3,8 @@ import {Observable, Subject, takeUntil, tap} from 'rxjs';
 import {Employee, EmployeeRequestDTO} from '../models/employee.model';
 import {EmployeeService} from '../services/employee.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {HttpErrorResponse} from '@angular/common/http';
+import {ErrorHandlerService} from '../services/error-handler-service';
 
 @Component({
   selector: 'app-employee',
@@ -18,6 +20,7 @@ export class EmployeeComponent implements OnInit, OnDestroy {
   showDetailsModal = false;
   showAddModal = false;
   selectedEmployee: Employee | null = null;
+  addEmployeeError: string | null = null;
   @ViewChild('modalDialog') modalDialog?: ElementRef<HTMLDivElement>;
   @ViewChild('addModalDialog') addModalDialog?: ElementRef<HTMLDivElement>;
 
@@ -25,7 +28,8 @@ export class EmployeeComponent implements OnInit, OnDestroy {
 
   constructor(
     private employeeService: EmployeeService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private errorHandlerService: ErrorHandlerService
   ) {
     this.employeeForm = this.fb.group({
       firstname: ['', [Validators.required, Validators.minLength(2)]],
@@ -127,6 +131,7 @@ export class EmployeeComponent implements OnInit, OnDestroy {
   openAddModal(): void {
     this.showAddModal = true;
     this.employeeForm.reset();
+    this.addEmployeeError = null;
 
     if (this._departmentId !== undefined && this._departmentId !== null) {
       this.employeeForm.patchValue({ departmentId: this._departmentId });
@@ -139,6 +144,7 @@ export class EmployeeComponent implements OnInit, OnDestroy {
   closeAddModal(): void {
     this.showAddModal = false;
     this.employeeForm.reset();
+    this.addEmployeeError = null;
   }
 
   handleAddModalKey(event: KeyboardEvent): void {
@@ -149,6 +155,7 @@ export class EmployeeComponent implements OnInit, OnDestroy {
 
   addEmployee(): void {
     if (this.employeeForm.valid) {
+      this.addEmployeeError = null;
       const formValue = this.employeeForm.value;
       const request: EmployeeRequestDTO = {
         firstname: formValue.firstname,
@@ -170,7 +177,7 @@ export class EmployeeComponent implements OnInit, OnDestroy {
               this.loadEmployees();
             }
           },
-          error: (error) => console.error('Error adding employee:', error)
+          error: (error: HttpErrorResponse) => this.addEmployeeError = this.errorHandlerService.getErrorMessage(error)
         });
     }
   }

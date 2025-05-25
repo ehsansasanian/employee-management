@@ -21,6 +21,9 @@
   <div class="modal-overlay" *ngIf="showAddModal">
     <div class="modal-dialog" (keydown)="handleAddModalKey($event)">
       <h3>Add Department</h3>
+      <div class="error-message" *ngIf="addDepartmentError" style="color: #dc3545; margin-bottom: 1rem; text-align: center;">
+        {{ addDepartmentError }}
+      </div>
       <input #addDeptInput type="text" [(ngModel)]="newDepartmentName" placeholder="Department name"
              (keydown.enter)="$event.preventDefault()"/>
       <div style="margin-top: 16px;">

@@ -43,6 +43,9 @@
   <div class="modal-overlay" *ngIf="showAddModal" (click)="closeAddModal()">
     <div #addModalDialog class="modal-dialog" (click)="$event.stopPropagation()" (keydown)="handleAddModalKey($event)" tabindex="0">
       <h3>Add New Employee</h3>
+      <div class="error-message" *ngIf="addEmployeeError" style="color: #dc3545; margin-bottom: 1rem; text-align: center;">
+        {{ addEmployeeError }}
+      </div>
       <form [formGroup]="employeeForm" (ngSubmit)="addEmployee()" class="add-employee-form">
         <div class="form-group">
           <label for="firstname">First Name</label>

@@ -3,6 +3,7 @@ import {Department} from '../models/department.model'
 import {DepartmentService, NewDepartment} from '../services/department.service'
 import {EmployeeService} from '../services/employee.service'
 import {Observable, Subject, takeUntil} from 'rxjs'
+import {ErrorHandlerService} from '../services/error-handler-service';
 
 @Component({
   selector: 'dashboard',
@@ -14,6 +15,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   departments$: Observable<Department[]>
 
   activeTab: 'departments' | 'employees' = 'departments'
+  addDepartmentError: string | null = null
 
   showAddModal = false
   showEmployeeModal = false
@@ -25,7 +27,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>()
 
-  constructor(private departmentService: DepartmentService, private employeeService: EmployeeService) {
+  constructor(private departmentService: DepartmentService,
+              private employeeService: EmployeeService,
+              private errorHandlerService: ErrorHandlerService) {
     this.departments$ = this.departmentService.departments$
   }
 
@@ -48,6 +52,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   openAddModal(): void {
     this.showAddModal = true
     this.newDepartmentName = ''
+    this.addDepartmentError = null
     setTimeout(() => {
       this.addDeptInputRef?.nativeElement.focus()
     })
@@ -56,6 +61,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   closeAddModal(): void {
     this.showAddModal = false
     this.newDepartmentName = ''
+    this.addDepartmentError = null
   }
 
   handleAddModalKey(event: KeyboardEvent): void {
@@ -73,11 +79,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       name,
       employeeCount: 0
     }
+    this.addDepartmentError = null
     this.departmentService.addDepartment(newDepartment)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => this.closeAddModal(),
-        error: (error) => console.error('Error adding department:', error)
+        error: (error) => this.addDepartmentError = this.errorHandlerService.getErrorMessage(error)
       })
   }
 

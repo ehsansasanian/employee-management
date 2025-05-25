@@ -84,6 +84,6 @@ export class EmployeeService {
       errorMessage = `Server-side error Code: ${error.status}\nMessage: ${error.message}`;
     }
     console.error(errorMessage);
-    return throwError(() => new Error(errorMessage));
+    return throwError(() => error);
   }
 }
