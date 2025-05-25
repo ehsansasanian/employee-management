@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, catchError, Observable, tap, throwError} from 'rxjs';
-import {Employee} from '../models/employee.model';
+import {Employee, EmployeeRequestDTO} from '../models/employee.model';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {ApiConfigService} from './api-config.service';
 
@@ -46,8 +46,34 @@ export class EmployeeService {
       .pipe(catchError(this.handleError));
   }
 
+  addEmployee(request: EmployeeRequestDTO): Observable<Employee> {
+    return this.http.post<Employee>(this.apiConfig.getEmployeesUrl(), request)
+      .pipe(
+        tap(newEmployee => {
+          const current = this.paginatedEmployeesSubject.value;
+          if (current) {
+            this.paginatedEmployeesSubject.next([...current, newEmployee]);
+          }
+        }),
+        catchError(this.handleError)
+      );
+  }
+
   invalidateCache(): void {
     this.paginatedEmployeesSubject.next(null);
+  }
+
+  deleteEmployee(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiConfig.getEmployeesUrl()}/${id}`)
+      .pipe(
+        tap(() => {
+          const current = this.paginatedEmployeesSubject.value;
+          if (current) {
+            this.paginatedEmployeesSubject.next(current.filter(emp => emp.id !== id));
+          }
+        }),
+        catchError(this.handleError)
+      );
   }
 
   private handleError(error: HttpErrorResponse) {

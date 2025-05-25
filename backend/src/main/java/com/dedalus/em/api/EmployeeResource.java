@@ -41,7 +41,7 @@ public class EmployeeResource {
     @Path("{id}")
     public Response get(@PathParam("id") Long id) {
         return Response.status(Response.Status.OK)
-                .entity(service.find(id))
+                .entity(EmployeeResponseDTO.fromEntity(service.find(id)))
                 .build();
     }
 

@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Observable, Subject, takeUntil, tap} from 'rxjs';
 import {Employee} from '../models/employee.model';
 import {EmployeeService} from '../services/employee.service';
@@ -13,6 +13,10 @@ export class EmployeeComponent implements OnInit, OnDestroy {
   employees$!: Observable<Employee[]>;
   private _departmentId: number | null | undefined = undefined;
   private destroy$ = new Subject<void>()
+
+  showDetailsModal = false;
+  selectedEmployee: Employee | null = null;
+  @ViewChild('modalDialog') modalDialog?: ElementRef<HTMLDivElement>;
 
   constructor(private employeeService: EmployeeService) {
   }
@@ -64,5 +68,34 @@ export class EmployeeComponent implements OnInit, OnDestroy {
     console.debug('EmployeeComponent destroying');
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  deleteEmployee(id: number, event: Event): void {
+    event.stopPropagation();
+    this.employeeService.deleteEmployee(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        error: (error) => console.error('Error deleting employee:', error)
+      });
+  }
+
+  openDetailsModal(employee: Employee, event: Event): void {
+    event.stopPropagation();
+    this.selectedEmployee = employee;
+    this.showDetailsModal = true;
+    setTimeout(() => {
+      this.modalDialog?.nativeElement.focus();
+    });
+  }
+
+  closeDetailsModal(): void {
+    this.showDetailsModal = false;
+    this.selectedEmployee = null;
+  }
+
+  handleModalKey(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      this.closeDetailsModal();
+    }
   }
 }
