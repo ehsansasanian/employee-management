@@ -1,44 +1,59 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable, of} from 'rxjs';
+import {BehaviorSubject, catchError, Observable, tap, throwError} from 'rxjs';
 import {Employee} from '../models/employee.model';
-import {Department} from '../models/department.model';
-import {map} from 'rxjs/operators';
-
-const DEPARTMENTS: Department[] = [
-  { id: 1, name: 'Engineering', employeeCount: 0 },
-  { id: 2, name: 'Management', employeeCount: 0 },
-  { id: 3, name: 'QA', employeeCount: 0 },
-];
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {ApiConfigService} from './api-config.service';
 
 @Injectable({providedIn: 'root'})
 export class EmployeeService {
-  private employeesSubject = new BehaviorSubject<Employee[]>([
-    {id: 1, name: 'Alice Smith', department: DEPARTMENTS[0]},
-    {id: 2, name: 'Bob Johnson', department: DEPARTMENTS[1]},
-    {id: 3, name: 'Carol Lee', department: DEPARTMENTS[0]},
-    {id: 4, name: 'David Kim', department: DEPARTMENTS[2]},
-    {id: 5, name: 'Eve Unassigned', department: null},
-  ]);
+  private paginatedEmployeesSubject = new BehaviorSubject<Employee[] | null>(null);
+  paginatedEmployees$ = this.paginatedEmployeesSubject.asObservable();
 
-  employees$ = this.employeesSubject.asObservable();
+  constructor(
+    private http: HttpClient,
+    private apiConfig: ApiConfigService
+  ) {
+  }
 
-  getEmployees(): Employee[] {
-    return this.employeesSubject.value;
+  getEmployeesPaginated(page: number = 0, size: number = 10, forceRefresh: boolean = false): Observable<Employee[]> {
+    if (!forceRefresh && page === 0 && this.paginatedEmployeesSubject.value) {
+      // reading from cached value if available
+      return this.paginatedEmployees$ as Observable<Employee[]>;
+    }
+    return this.http.get<Employee[]>(`${this.apiConfig.getEmployeesUrl()}?page=${page}&size=${size}`)
+      .pipe(
+        tap(employees => {
+          if (page === 0) {
+            this.paginatedEmployeesSubject.next(employees);
+          }
+        }),
+        catchError(this.handleError)
+      );
   }
 
   getEmployeesByDepartment(departmentId: number): Observable<Employee[]> {
-    return this.employees$.pipe(
-      map(employees => employees.filter(e => e.department?.id === departmentId))
-    );
-  }
-
-  getUnassignedEmployeeCount(): Observable<number> {
-    return of(1);
+    return this.http.get<Employee[]>(`${this.apiConfig.getDepartmentsUrl()}/${departmentId}/employees`)
+      .pipe(catchError(this.handleError))
   }
 
   getUnassignedEmployees(): Observable<Employee[]> {
-    return this.employees$.pipe(
-      map(employees => employees.filter(e => !e.department))
-    );
+    return this.http.get<Employee[]>(this.apiConfig.getEmployeesUrl() + '/unassigned')
+      .pipe(catchError(this.handleError))
+  }
+
+  getUnassignedEmployeeCount(): Observable<number> {
+    return this.http.get<number>(this.apiConfig.getEmployeesUrl() + '/unassigned/count')
+      .pipe(catchError(this.handleError));
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'An error occurred in EmployeeService';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Client-side error: ${error.error.message}`;
+    } else {
+      errorMessage = `Server-side error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    console.error(errorMessage);
+    return throwError(() => new Error(errorMessage));
   }
 }

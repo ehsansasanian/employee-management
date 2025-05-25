@@ -10,41 +10,54 @@ import {EmployeeService} from '../services/employee.service';
   styleUrl: './employee.component.scss'
 })
 export class EmployeeComponent implements OnInit, OnDestroy {
-  employees$: Observable<Employee[]>;
-  private destroy$ = new Subject<void>();
+  employees$!: Observable<Employee[]>;
+  private _departmentId: number | null | undefined = undefined;
+  private destroy$ = new Subject<void>()
 
   constructor(private employeeService: EmployeeService) {
-    this.employees$ = this.employeeService.employees$
-      .pipe(
-        tap(employees => console.debug('Initial employees:', employees)),
-        takeUntil(this.destroy$)
-      );
   }
 
-  /*
-  * If departmentId is null or undefined, fetch unassigned employees.
-  * If departmentId is a number, fetch employees of that department.
-  * */
   @Input()
-  set employees(departmentId: number | null | undefined) {
-    console.debug('Setting employees:', departmentId);
-    if (departmentId == null) {
+  set departmentId(value: number | null | undefined) {
+    this._departmentId = value;
+    this.loadEmployees();
+  }
+
+  get departmentId(): number | null | undefined {
+    return this._departmentId;
+  }
+
+  private loadEmployees(): void {
+    if (this._departmentId === undefined) {
+      // 'Employees' tab, load all paginated
+      this.employees$ = this.employeeService.getEmployeesPaginated()
+        .pipe(
+          tap(employees => console.info('Paginated employees:', employees)),
+          takeUntil(this.destroy$)
+        );
+    } else if (this._departmentId === null) {
+      // 'Unassigned' card
       this.employees$ = this.employeeService.getUnassignedEmployees()
         .pipe(
-          tap(employees => console.log('Unassigned employees:', employees)),
+          tap(employees => console.info('Unassigned employees:', employees)),
           takeUntil(this.destroy$)
         );
     } else {
-      this.employees$ = this.employeeService.getEmployeesByDepartment(departmentId)
+      // specific department card
+      this.employees$ = this.employeeService.getEmployeesByDepartment(this._departmentId)
         .pipe(
-          tap(employees => console.log(`Employees for department ${departmentId}:`, employees)),
+          tap(employees => console.info(`Employees for department ${this._departmentId}:`, employees)),
           takeUntil(this.destroy$)
         );
     }
   }
 
   ngOnInit(): void {
-    console.debug('EmployeeComponent initialized');
+    // Only use onInit for the `employees` tab
+    if (this._departmentId === undefined) {
+      console.info('EmployeeComponent, loading paginated employees');
+      this.loadEmployees();
+    }
   }
 
   ngOnDestroy(): void {
