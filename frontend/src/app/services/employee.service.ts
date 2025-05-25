@@ -76,6 +76,12 @@ export class EmployeeService {
       );
   }
 
+  searchEmployees(query: string): Observable<Employee[]> {
+    console.log('searchEmployees called with query:', query);
+    return this.http.get<Employee[]>(`${this.apiConfig.getEmployeesUrl()}?q=${encodeURIComponent(query)}`)
+      .pipe(catchError(this.handleError));
+  }
+
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'An error occurred in EmployeeService';
     if (error.error instanceof ErrorEvent) {

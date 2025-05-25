@@ -4,6 +4,8 @@ import {DepartmentService, NewDepartment} from '../services/department.service'
 import {EmployeeService} from '../services/employee.service'
 import {Observable, Subject, takeUntil} from 'rxjs'
 import {ErrorHandlerService} from '../services/error-handler-service';
+import {SearchService} from '../services/search.service';
+import {debounceTime, filter} from 'rxjs/operators';
 
 @Component({
   selector: 'dashboard',
@@ -29,7 +31,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor(private departmentService: DepartmentService,
               private employeeService: EmployeeService,
-              private errorHandlerService: ErrorHandlerService) {
+              private errorHandlerService: ErrorHandlerService,
+              private searchService: SearchService) {
     this.departments$ = this.departmentService.departments$
   }
 
@@ -40,6 +43,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         next: (count) => this.unassignedCount = count,
         error: (error) => console.error('Error getting unassigned count:', error)
       })
+    this.subscribeToSearch()
   }
 
   ngOnDestroy(): void {
@@ -125,5 +129,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
       const modal = document.getElementById('employee-modal')
       modal?.focus()
     })
+  }
+
+  private subscribeToSearch() {
+    this.searchService.search$
+      .pipe(
+        debounceTime(400),
+        filter(value => value !== undefined && value !== null),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(value => {
+        if (this.activeTab === 'departments') {
+          if (value && value.trim() !== '') {
+            this.departments$ = this.departmentService.searchDepartments(value.trim());
+          } else {
+            this.departments$ = this.departmentService.departments$;
+          }
+        }
+      });
   }
 }

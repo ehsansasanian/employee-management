@@ -5,6 +5,8 @@ import {EmployeeService} from '../services/employee.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {HttpErrorResponse} from '@angular/common/http';
 import {ErrorHandlerService} from '../services/error-handler-service';
+import {SearchService} from '../services/search.service';
+import {debounceTime, filter} from 'rxjs/operators';
 
 @Component({
   selector: 'app-employee',
@@ -29,7 +31,8 @@ export class EmployeeComponent implements OnInit, OnDestroy {
   constructor(
     private employeeService: EmployeeService,
     private fb: FormBuilder,
-    private errorHandlerService: ErrorHandlerService
+    private errorHandlerService: ErrorHandlerService,
+    private searchService: SearchService
   ) {
     this.employeeForm = this.fb.group({
       firstname: ['', [Validators.required, Validators.minLength(2)]],
@@ -77,10 +80,10 @@ export class EmployeeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Only use onInit for the `employees` tab
     if (this._departmentId === undefined) {
-      console.info('EmployeeComponent, loading paginated employees');
-      this.loadEmployees();
+      console.info('EmployeeComponent, loading paginated employees')
+      this.loadEmployees()
+      this.searchSubscribe()
     }
   }
 
@@ -134,7 +137,7 @@ export class EmployeeComponent implements OnInit, OnDestroy {
     this.addEmployeeError = null;
 
     if (this._departmentId !== undefined && this._departmentId !== null) {
-      this.employeeForm.patchValue({ departmentId: this._departmentId });
+      this.employeeForm.patchValue({departmentId: this._departmentId});
     }
     setTimeout(() => {
       this.addModalDialog?.nativeElement.focus();
@@ -199,5 +202,21 @@ export class EmployeeComponent implements OnInit, OnDestroy {
       return 'Please enter a valid phone number';
     }
     return '';
+  }
+
+  private searchSubscribe() {
+    this.searchService.search$
+      .pipe(
+        debounceTime(400),
+        filter(value => value !== undefined && value !== null),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(value => {
+        if (value && value.trim() !== '') {
+          this.employees$ = this.employeeService.searchEmployees(value.trim());
+        } else {
+          this.loadEmployees();
+        }
+      });
   }
 }

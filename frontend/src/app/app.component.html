@@ -1,6 +1,6 @@
 <div class="header">
     <h1>Employee Management</h1>
-    <input type="text" placeholder="Search..." />
+    <input type="text" placeholder="Search..." [formControl]="searchControl" (focus)="onSearchFocus()" (blur)="onSearchBlur()" />
 </div>
 <div class="container">
     <dashboard></dashboard>
