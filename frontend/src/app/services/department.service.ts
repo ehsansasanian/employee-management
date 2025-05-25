@@ -1,28 +1,64 @@
 import {Injectable} from '@angular/core'
-import {BehaviorSubject} from 'rxjs'
+import {BehaviorSubject, catchError, Observable, tap, throwError} from 'rxjs'
 import {Department} from '../models/department.model'
+import {HttpClient, HttpErrorResponse} from '@angular/common/http'
+import {ApiConfigService} from './api-config.service'
 
 export type NewDepartment = Omit<Department, 'id'>
 
 @Injectable({ providedIn: 'root' })
 export class DepartmentService {
-  private departmentsSubject = new BehaviorSubject<Department[]>([
-    { id: 1, name: 'Department 1', employeeCount: 5 },
-    { id: 2, name: 'Department 2', employeeCount: 8 },
-    { id: 3, name: 'Department 3', employeeCount: 3 },
-  ]);
-  private nextId = 4;
+  private departmentsSubject = new BehaviorSubject<Department[]>([])
+  departments$ = this.departmentsSubject.asObservable()
 
-  departments$ = this.departmentsSubject.asObservable();
-
-  addDepartment(department: NewDepartment): void {
-    const current = this.departmentsSubject.value;
-    const newDepartment: Department = { ...department, id: this.nextId++ };
-    this.departmentsSubject.next([...current, newDepartment]);
+  constructor(
+    private http: HttpClient,
+    private apiConfig: ApiConfigService
+  ) {
+    this.loadDepartments()
   }
 
-  deleteDepartment(id: number): void {
-    const current = this.departmentsSubject.value;
-    this.departmentsSubject.next(current.filter(dep => dep.id !== id));
+  private loadDepartments(): void {
+    this.http.get<Department[]>(this.apiConfig.getDepartmentsUrl())
+      .pipe(
+        tap(departments => this.departmentsSubject.next(departments)),
+        catchError(this.handleError)
+      )
+      .subscribe()
+  }
+
+  addDepartment(department: NewDepartment): Observable<Department> {
+    return this.http.post<Department>(this.apiConfig.getDepartmentsUrl(), department)
+      .pipe(
+        tap(newDepartment => {
+          const current = this.departmentsSubject.value
+          this.departmentsSubject.next([...current, newDepartment])
+        }),
+        catchError(this.handleError)
+      )
+  }
+
+  deleteDepartment(id: number): Observable<void> {
+    return this.http.delete<void>(this.apiConfig.getDepartmentsUrl() + `/${id}`)
+      .pipe(
+        tap(() => {
+          // using optimistic update – alternatively could re-fetch all departments
+          const current = this.departmentsSubject.value
+          this.departmentsSubject.next(current.filter(dep => dep.id !== id))
+        }),
+        catchError(this.handleError)
+      )
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    // TODO: Check error handling strategy
+    let errorMessage = 'An error occurred'
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = error.error.message
+    } else {
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`
+    }
+    console.error(errorMessage)
+    return throwError(() => new Error(errorMessage))
   }
 }

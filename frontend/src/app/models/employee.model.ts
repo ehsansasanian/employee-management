@@ -2,6 +2,6 @@ import { Department } from './department.model';
 
 export interface Employee {
   id: number
-  name: string
+  fullName: string
   department: Department | null
 }

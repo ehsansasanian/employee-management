@@ -1,8 +1,8 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core'
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core'
 import {Department} from '../models/department.model'
 import {DepartmentService, NewDepartment} from '../services/department.service'
 import {EmployeeService} from '../services/employee.service'
-import {Observable} from 'rxjs'
+import {Observable, Subject, takeUntil} from 'rxjs'
 
 @Component({
   selector: 'dashboard',
@@ -10,7 +10,7 @@ import {Observable} from 'rxjs'
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   departments$: Observable<Department[]>
 
   activeTab: 'departments' | 'employees' = 'departments'
@@ -23,17 +23,27 @@ export class DashboardComponent implements OnInit {
   unassignedCount: number = 0
   @ViewChild('addDeptInput') addDeptInputRef?: ElementRef<HTMLInputElement>
 
+  private destroy$ = new Subject<void>()
+
   constructor(private departmentService: DepartmentService, private employeeService: EmployeeService) {
     this.departments$ = this.departmentService.departments$
   }
 
   ngOnInit(): void {
-    this.employeeService.getUnassignedEmployeeCount().subscribe(count => {
-      this.unassignedCount = count
-    })
+    this.employeeService.getUnassignedEmployeeCount()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (count) => this.unassignedCount = count,
+        error: (error) => console.error('Error getting unassigned count:', error)
+      })
   }
 
-  /*    Tab management methods    */
+  ngOnDestroy(): void {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
+  /*       Department management methods      */
 
   openAddModal(): void {
     this.showAddModal = true
@@ -56,8 +66,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  /*       Department management methods      */
-
   addDepartment(): void {
     const name = this.newDepartmentName.trim()
     if (!name) return
@@ -66,11 +74,19 @@ export class DashboardComponent implements OnInit {
       employeeCount: 0
     }
     this.departmentService.addDepartment(newDepartment)
-    this.closeAddModal()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => this.closeAddModal(),
+        error: (error) => console.error('Error adding department:', error)
+      })
   }
 
   deleteDepartment(id: number): void {
     this.departmentService.deleteDepartment(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        error: (error) => console.error('Error deleting department:', error)
+      })
   }
 
   /*          Employee management methods        */

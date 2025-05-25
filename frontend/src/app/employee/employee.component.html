@@ -1,6 +1,7 @@
+<!--   Clicking on department-card or employee tab ––> this HTML   -->
 <div class="employee-list">
   <div class="employee-card" *ngFor="let employee of employees$ | async">
-    <div class="employee-name">{{ employee.name }}</div>
+    <div class="employee-name">{{ employee.fullName }}</div>
     <div class="employee-department">
       {{ employee.department?.name || 'Unassigned' }}
     </div>
