@@ -14,6 +14,5 @@ CREATE TABLE employees
     address       TEXT,
     phone         TEXT NOT NULL,
     email         TEXT NOT NULL UNIQUE,
-    department_id BIGINT REFERENCES departments (id),
-    CONSTRAINT chk_phone CHECK (phone ~ '^\+\d{7,15}$')
+    department_id BIGINT REFERENCES departments (id)
 );
