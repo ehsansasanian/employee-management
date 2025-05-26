@@ -5,6 +5,7 @@ import com.dedalus.em.repo.DepartmentRepository;
 import com.dedalus.em.repo.EmployeeRepository;
 import com.dedalus.em.service.EmployeeService;
 import com.dedalus.em.service.exception.NotFoundException;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -30,7 +31,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<Employee> findAll(int page, int size) {
         // TODO: Fix pagination to return paginated results
         logger.info("Fetching all employees with pagination: page={}, size={}", page, size);
-        return repo.findAll().page(page, size).list();
+        return repo.findAll(Sort.by("department.id")).page(page, size).list();
     }
 
     public List<Employee> search(String q, int page, int size) {

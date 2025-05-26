@@ -15,7 +15,8 @@ export class EmployeeService {
   ) {
   }
 
-  getEmployeesPaginated(page: number = 0, size: number = 10): Observable<Employee[]> {
+  getEmployeesPaginated(page: number = 0, size: number = 100): Observable<Employee[]> {
+    // TODO: Handle pagination and add functionality to the UI too
     if (page === 0 && this.paginatedEmployeesSubject.value) {
       // reading from cached value if available
       return this.paginatedEmployees$ as Observable<Employee[]>;
