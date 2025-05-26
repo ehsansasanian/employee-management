@@ -57,7 +57,7 @@ export class DepartmentService {
   searchDepartments(query: string): Observable<Department[]> {
     console.log('Searching departments with query:', query)
     return this.http.get<Department[]>(`${this.apiConfig.getDepartmentsUrl()}?q=${encodeURIComponent(query)}`)
-      .pipe(catchError(this.handleError));
+      .pipe(catchError(this.handleError))
   }
 
   private handleError(error: HttpErrorResponse) {

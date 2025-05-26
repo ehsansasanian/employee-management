@@ -3,9 +3,9 @@ import {Department} from '../models/department.model'
 import {DepartmentService, NewDepartment} from '../services/department.service'
 import {EmployeeService} from '../services/employee.service'
 import {Observable, Subject, takeUntil} from 'rxjs'
-import {ErrorHandlerService} from '../services/error-handler-service';
-import {SearchService} from '../services/search.service';
-import {debounceTime, filter} from 'rxjs/operators';
+import {ErrorHandlerService} from '../services/error-handler-service'
+import {SearchService} from '../services/search.service'
+import {debounceTime, filter} from 'rxjs/operators'
 
 @Component({
   selector: 'dashboard',
@@ -141,11 +141,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .subscribe(value => {
         if (this.activeTab === 'departments') {
           if (value && value.trim() !== '') {
-            this.departments$ = this.departmentService.searchDepartments(value.trim());
+            this.departments$ = this.departmentService.searchDepartments(value.trim())
           } else {
-            this.departments$ = this.departmentService.departments$;
+            this.departments$ = this.departmentService.departments$
           }
         }
-      });
+      })
   }
 }
